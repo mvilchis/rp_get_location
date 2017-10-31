@@ -1,0 +1,6 @@
+Flask-API
+dateparser
+markdown
+pandas
+requests
+elasticsearch
