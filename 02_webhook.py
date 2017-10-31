@@ -8,7 +8,7 @@ app = FlaskAPI(__name__)
 KEYS = ['fecha']
 
 @app.route("/<variable_name>", methods=['GET', 'POST'])
-def get_nearest_bansefi(variable_name = "fecha"):
+def get_date_value(variable_name = "fecha"):
     """
     List or create notes.
     """
