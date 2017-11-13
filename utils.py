@@ -82,8 +82,11 @@ ESTADOS_ABBREVIATION = {
           ,"15_1":{"nombre":"Edomex", "clave": "15"}
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
-with open('data/municipios.json') as data_file:
+with open('data/municios.json') as data_file:
     MUNICIPIOS = json.load(data_file)
+
+with open('data/colonias.json') as data_file:
+    COLONIAS = json.load(data_file)
 
 ############### Constants elasticsearch #######################
 HITS_KEY = 'hits'
@@ -95,6 +98,28 @@ elastic_port = int(os.getenv('ELASTIC_PORT',9200))
 elastic_ip = os.getenv('ELASTIC_IP','127.0.0.1')
 elasticsearch_url = "{ip}:{port}"
 es = Elasticsearch([elasticsearch_url.format(ip=elastic_ip, port=elastic_port)])
+
+#Method that intent search the pattern used, first will search locally,
+# if not find a pattern then ask to elasticsearch server
+def parse_col(mun, item):
+    item = mun.lower()
+    mun = str(mun)
+
+    has_prefix = [value["col_name"] for value in COLONIAS if value["mun"] == mun and value["col_name"].lower().startswith(item)]
+    is_correct = [value["col_name"] for value in COLONIAS if value["mun"] == mun and item == value["col_name"].lower()
+                                                   or item == unidecode.unidecode(value["col_name"].lower())]
+    if  len(is_correct) == 1:
+        return is_correct[0]
+    elif len(has_prefix) == 1:
+        return has_prefix[0]
+    else:
+        ##Check the hit
+        result = Search().using(es).index('colonias').doc_type(mun).query('match', nombre=str(item)).execute().to_dict()
+        hits = result[HITS_KEY][HITS_KEY]
+        if hits:
+           return hits[0][SOURCE_KEY]["nombre"]
+    return item
+
 
 #Method that intent search the pattern used, first will search locally,
 # if not find a pattern then ask to elasticsearch server

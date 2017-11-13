@@ -95,6 +95,8 @@ ESTADOS_ABBREVIATION = {
 with open('data/municipios.json') as data_file:
      MUNICIPIOS = json.load(data_file)
 
+with open('data/colonias.json') as data_file:
+     COLONIAS = json.load(data_file)
 
 ################# Index data ######################
 def main():
@@ -109,14 +111,23 @@ def main():
     es.indices.delete(index='municipios', ignore=[400, 404])
     es.indices.create(index = 'municipios', body = INDEX_SETTINGS)
 
+    es.indices.delete(index='colonias', ignore=[400, 404])
+    es.indices.create(index = 'colonias', body = INDEX_SETTINGS)
+
+
     for key in ESTADOS.keys():
         value = ESTADOS[key]
         es.index(index = 'estados', doc_type = 'estado', body = {'nombre':value["nombre"], 'clave': value["clave"]})
     for key in ESTADOS_ABBREVIATION.keys():
         value = ESTADOS_ABBREVIATION[key]
         es.index(index = 'estados', doc_type = 'estado', body = {'nombre':value["nombre"], 'clave': value["clave"]})
+
     for key in MUNICIPIOS.keys():
         for value in MUNICIPIOS[key]:
             es.index(index = 'municipios', doc_type = key, body = {'nombre':value})
+
+    for item in COLONIAS:
+        es.index(index = 'colonias', doc_type = item['mun'], body = {'nombre':item["col_name"]})
+
 
 main()
