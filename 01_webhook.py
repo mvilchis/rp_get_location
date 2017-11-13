@@ -40,6 +40,16 @@ def get_location_with_corner_municipio():
          location = get_location_with_corner_municipio(municipio,street_a,street_b)
          return jsonify(location)
 
+@app.route("/col/", methods=['GET', 'POST'])
+def get_correct_col():
+     """
+     List or create notes.
+     """
+     if request.method == 'GET':
+         municipio = str(request.args.get('municipio'))
+         colonia = str(request.args.get('colonia'))
+         col_name = get_correct_col(municipio, colonia)
+         return jsonify({"nombre": col_name})
 
 if __name__ == "__main__":
     #Cambiar ip a 0.0.0.0

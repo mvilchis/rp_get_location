@@ -196,7 +196,14 @@ def correct_edo(nombre):
 ##########################################
 def correct_mun(edo, nombre):
     nombre_str = str(nombre).lower()
-    return parse_mun(edo,nombre_str)
+    return parse_mun(edo.lower(),nombre_str)
+
+##########################################
+#          Normalize col name            #
+##########################################
+def correct_col(mun, nombre):
+    nombre_str = str(nombre).lower()
+    return parse_mun(mun.lower(),nombre_str)
 
 ##########################################
 #       Search corner base on municipio  #
