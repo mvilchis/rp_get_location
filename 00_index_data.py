@@ -92,7 +92,7 @@ ESTADOS_ABBREVIATION = {
           ,"15_1":{"nombre":"Edomex", "clave": "15"}
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
-with open('municipios.json') as data_file:
+with open('data/municipios.json') as data_file:
      MUNICIPIOS = json.load(data_file)
 
 

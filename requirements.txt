@@ -2,3 +2,5 @@ Flask-API
 dateparser
 requests
 elasticsearch
+unidecode
+elasticsearch-dsl

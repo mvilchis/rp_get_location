@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
+import elasticsearch_dsl as dsl
+from elasticsearch_dsl import Search
 import os
 import re
 import time
@@ -80,7 +82,7 @@ ESTADOS_ABBREVIATION = {
           ,"15_1":{"nombre":"Edomex", "clave": "15"}
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
-with open('municipios.json') as data_file:
+with open('data/municipios.json') as data_file:
     MUNICIPIOS = json.load(data_file)
 
 ############### Constants elasticsearch #######################
@@ -111,9 +113,8 @@ def parse_mun(edo_cve, mun):
         return estado_item
     else:
         ##Check the hit
-        result = es.search(index= 'municipios',
-                           body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO' }}}})
-        hits = [ hit for hit in result[HITS_KEY][HITS_KEY] if hit["_type"] == edo_cve]
+        result = Search().using(es).index('municipios').doc_type(str(edo_cve)).query('match', nombre=str(item)).execute().to_dict()
+        hits = result[HITS_KEY][HITS_KEY]
         if hits:
            return hits[0][SOURCE_KEY]["nombre"]
     return item
