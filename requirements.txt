@@ -3,4 +3,3 @@ dateparser
 requests
 elasticsearch
 unidecode
-elasticsearch-dsl

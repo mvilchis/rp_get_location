@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
-import elasticsearch_dsl as dsl
-from elasticsearch_dsl import Search
 import os
 import re
 import time
@@ -82,7 +80,7 @@ ESTADOS_ABBREVIATION = {
           ,"15_1":{"nombre":"Edomex", "clave": "15"}
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
-with open('data/municios.json') as data_file:
+with open('data/municipios.json') as data_file:
     MUNICIPIOS = json.load(data_file)
 
 with open('data/colonias.json') as data_file:
@@ -102,7 +100,7 @@ es = Elasticsearch([elasticsearch_url.format(ip=elastic_ip, port=elastic_port)])
 #Method that intent search the pattern used, first will search locally,
 # if not find a pattern then ask to elasticsearch server
 def parse_col(mun, item):
-    item = mun.lower()
+    item = item.lower()
     mun = str(mun)
 
     has_prefix = [value["col_name"] for value in COLONIAS if value["mun"] == mun and value["col_name"].lower().startswith(item)]
@@ -114,10 +112,12 @@ def parse_col(mun, item):
         return has_prefix[0]
     else:
         ##Check the hit
-        result = Search().using(es).index('colonias').doc_type(mun).query('match', nombre=str(item)).execute().to_dict()
+        result = es.search(index= 'colonias',doc_type=mun,
+                            body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
         hits = result[HITS_KEY][HITS_KEY]
         if hits:
-           return hits[0][SOURCE_KEY]["nombre"]
+            return hits[0][SOURCE_KEY]["nombre"]
+
     return item
 
 
@@ -138,7 +138,8 @@ def parse_mun(edo_cve, mun):
         return estado_item
     else:
         ##Check the hit
-        result = Search().using(es).index('municipios').doc_type(str(edo_cve)).query('match', nombre=str(item)).execute().to_dict()
+        result = es.search(index= 'municipios',doc_type=edo_cve,
+                            body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
         hits = result[HITS_KEY][HITS_KEY]
         if hits:
            return hits[0][SOURCE_KEY]["nombre"]
