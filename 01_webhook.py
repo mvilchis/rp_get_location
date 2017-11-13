@@ -48,7 +48,7 @@ def get_correct_col():
      if request.method == 'GET':
          municipio = str(request.args.get('municipio'))
          colonia = str(request.args.get('colonia'))
-         col_name = get_correct_col(municipio, colonia)
+         col_name = correct_col(municipio, colonia)
          return jsonify({"nombre": col_name})
 
 if __name__ == "__main__":

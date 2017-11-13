@@ -1,20 +1,10 @@
 FROM ubuntu:latest
 
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  nodejs \
-  npm \
-  nodejs-legacy \
-  python \
-  python-setuptools \
-  python-pip \
-  python-dev \
-  build-essential \
-  git \
-  vim\
-  libpq-dev \
-  lib32ncurses5-dev \
-  libgeos-dev
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev  vim \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
 
 RUN mkdir webhook
 
@@ -22,7 +12,7 @@ ADD . webhook/
 
 WORKDIR webhook
 
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 EXPOSE 5000
 
 CMD ["./start.sh"]

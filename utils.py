@@ -5,7 +5,7 @@ import os
 import re
 import time
 import unidecode
-import json, requests
+import json, requests,codecs
 
 ###############     Constants date     ########################
 ESTADOS= {"1":{"nombre":"Aguascalientes", "clave":"01"}
@@ -80,11 +80,8 @@ ESTADOS_ABBREVIATION = {
           ,"15_1":{"nombre":"Edomex", "clave": "15"}
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
-with open('data/municipios.json') as data_file:
-    MUNICIPIOS = json.load(data_file)
-
-with open('data/colonias.json') as data_file:
-    COLONIAS = json.load(data_file)
+MUNICIPIOS = json.load(codecs.open('data/municipios.json', 'r', 'utf-8-sig'))
+COLONIAS = json.load(codecs.open('data/colonias.json', 'r', 'utf-8-sig'))
 
 ############### Constants elasticsearch #######################
 HITS_KEY = 'hits'
@@ -203,7 +200,7 @@ def correct_mun(edo, nombre):
 ##########################################
 def correct_col(mun, nombre):
     nombre_str = str(nombre).lower()
-    return parse_mun(mun.lower(),nombre_str)
+    return parse_col(mun.lower(),nombre_str)
 
 ##########################################
 #       Search corner base on municipio  #
