@@ -29,7 +29,7 @@ def get_correct_mun():
 
 
 @app.route("/corner/", methods=['GET', 'POST'])
-def get_location_with_corner_municipio():
+def get_location_with_corner():
      """
      List or create notes.
      """
