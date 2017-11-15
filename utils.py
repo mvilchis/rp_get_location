@@ -219,4 +219,4 @@ def get_location_with_corner_municipio(municipio,street_a, street_b):
              if 'geometry' in result_dic['results'][0]:
                  return result_dic['results'][0]['geometry']['location']
      else:
-         return {LAT_IDX: None, LON_IDX: None}
+         return {"lat": None, "lng": None}
