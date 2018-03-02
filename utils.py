@@ -222,7 +222,6 @@ def correct_mun(edo, nombre):
 ##########################################
 def correct_country(nombre, lng=None):
     nombre_str = str(nombre).lower()
-    print parse_country(nombre_str,lng)
     return parse_country(nombre_str,lng)
 
 
