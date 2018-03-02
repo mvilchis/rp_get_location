@@ -6,7 +6,7 @@ import re
 import time
 import unidecode
 import json, requests,codecs
-
+from data.paises import *
 ###############     Constants date     ########################
 ESTADOS= {"1":{"nombre":"Aguascalientes", "clave":"01"}
          ,"2":{"nombre":"Baja California", "clave":"02"}
@@ -81,7 +81,6 @@ ESTADOS_ABBREVIATION = {
           ,"23_1":{"nombre":"QR", "clave": "23"}}
 
 MUNICIPIOS = json.load(codecs.open('data/municipios.json', 'r', 'utf-8-sig'))
-COLONIAS = json.load(codecs.open('data/colonias.json', 'r', 'utf-8-sig'))
 
 ############### Constants elasticsearch #######################
 HITS_KEY = 'hits'
@@ -94,28 +93,51 @@ elastic_ip = os.getenv('ELASTIC_IP','127.0.0.1')
 elasticsearch_url = "{ip}:{port}"
 es = Elasticsearch([elasticsearch_url.format(ip=elastic_ip, port=elastic_port)])
 
+
 #Method that intent search the pattern used, first will search locally,
 # if not find a pattern then ask to elasticsearch server
-def parse_col(mun, item):
-    item = item.lower()
-    mun = str(mun)
-
-    has_prefix = [value["col_name"] for value in COLONIAS if value["mun"] == mun and value["col_name"].lower().startswith(item)]
-    is_correct = [value["col_name"] for value in COLONIAS if value["mun"] == mun and item == value["col_name"].lower()
-                                                   or item == unidecode.unidecode(value["col_name"].lower())]
-    if  len(is_correct) == 1:
-        return is_correct[0]
-    elif len(has_prefix) == 1:
-        return has_prefix[0]
+def parse_country(country, lng=None):
+    item = country.lower()
+    has_prefix =[]
+    is_correct =[]
+    if lng:
+        has_prefix = [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key][lng].lower().startswith(item)]
+        is_correct = [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key][lng].lower() == item
+                                                 or item == unidecode.unidecode(PAISES[key][lng].decode('utf-8'))]
     else:
-        ##Check the hit
-        result = es.search(index= 'colonias',doc_type=mun,
-                            body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
-        hits = result[HITS_KEY][HITS_KEY]
-        if hits:
-            return hits[0][SOURCE_KEY]["nombre"]
+        for lng in ["spa","eng","hol","por"]:
+            has_prefix += [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key][lng].lower().startswith(item)]
+            is_correct += [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key][lng].lower() == item
+                                                     or item == unidecode.unidecode(PAISES[key][lng].decode('utf-8'))]
 
-    return item
+    has_prefix += [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key]["abr"].lower().startswith(item)]
+    is_correct += [PAISES[key]["clave"] for key in PAISES.keys() if PAISES[key]["abr"].lower() == item
+                                             or item == unidecode.unidecode(PAISES[key]["abr"].decode('utf-8'))]
+    if  is_correct:
+        estado_item = is_correct[0]
+        return estado_item
+    elif has_prefix:
+        estado_item = has_prefix[0]
+        return estado_item
+    else:
+        if lng:
+            ##Check the hit
+            result = es.search(index= 'paises',doc_type=lng,
+                            body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
+            hits = result[HITS_KEY][HITS_KEY]
+            if hits:
+                return hits[0][SOURCE_KEY]["clave"]
+        else:
+            for lng in ["spa","eng","hol","por","abr"]:
+                ##Check the hit
+                result = es.search(index= 'paises',doc_type=lng,
+                                body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
+                hits = result[HITS_KEY][HITS_KEY]
+                if hits:
+                    return hits[0][SOURCE_KEY]["clave"]
+
+    return ""
+
 
 
 #Method that intent search the pattern used, first will search locally,
@@ -196,11 +218,13 @@ def correct_mun(edo, nombre):
     return parse_mun(edo.lower(),nombre_str)
 
 ##########################################
-#          Normalize col name            #
+#          Normalize cpuntry name        #
 ##########################################
-def correct_col(mun, nombre):
+def correct_country(nombre, lng=None):
     nombre_str = str(nombre).lower()
-    return parse_col(mun.lower(),nombre_str)
+    print parse_country(nombre_str,lng)
+    return parse_country(nombre_str,lng)
+
 
 ##########################################
 #       Search corner base on municipio  #

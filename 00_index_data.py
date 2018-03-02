@@ -3,7 +3,7 @@
 from elasticsearch import Elasticsearch
 import os
 import json
-
+from data.paises import *
 
 ############### Constants Elasticsearch configuration ####################
 INDEX_SETTINGS = { "settings":{
@@ -95,8 +95,6 @@ ESTADOS_ABBREVIATION = {
 with open('data/municipios.json') as data_file:
      MUNICIPIOS = json.load(data_file)
 
-with open('data/colonias.json') as data_file:
-     COLONIAS = json.load(data_file)
 
 ################# Index data ######################
 def main():
@@ -111,8 +109,8 @@ def main():
     es.indices.delete(index='municipios', ignore=[400, 404])
     es.indices.create(index = 'municipios', body = INDEX_SETTINGS)
 
-    es.indices.delete(index='colonias', ignore=[400, 404])
-    es.indices.create(index = 'colonias', body = INDEX_SETTINGS)
+    es.indices.delete(index='paises', ignore=[400, 404])
+    es.indices.create(index = 'paises', body = INDEX_SETTINGS)
 
 
     for key in ESTADOS.keys():
@@ -126,8 +124,12 @@ def main():
         for value in MUNICIPIOS[key]:
             es.index(index = 'municipios', doc_type = key, body = {'nombre':value})
 
-    for item in COLONIAS:
-        es.index(index = 'colonias', doc_type = item['mun'], body = {'nombre':item["col_name"]})
+    for key in PAISES.keys():
+        value = PAISES[key]
+        for index in ["spa","eng","hol","por","abr"]:
+            es.index(index = 'paises', doc_type = index, body = {'clave':value["clave"], "nombre":value[index]})
+
+
 
 
 main()
