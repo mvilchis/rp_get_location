@@ -151,18 +151,18 @@ def parse_mun(edo_cve, mun):
                                                  or item == unidecode.unidecode(value.lower())]
     if  len(is_correct) == 1:
         estado_item = is_correct[0]
-        return estado_item
+        return estado_item["nombre"], estado_item["clave"]
     elif len(has_prefix) == 1:
         estado_item = has_prefix[0]
-        return estado_item
+        return estado_item["nombre"], estado_item["clave"]
     else:
         ##Check the hit
         result = es.search(index= 'municipios',doc_type=edo_cve,
                             body ={'query' : {'match':  {'nombre': {'query':str(item),'fuzziness':'AUTO',  }}}})
         hits = result[HITS_KEY][HITS_KEY]
         if hits:
-           return hits[0][SOURCE_KEY]["nombre"]
-    return item
+            return hits[0][SOURCE_KEY]["nombre"],hits[0][SOURCE_KEY]["clave"]
+    return item,0
 
 
 

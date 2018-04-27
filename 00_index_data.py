@@ -122,7 +122,7 @@ def main():
 
     for key in MUNICIPIOS.keys():
         for value in MUNICIPIOS[key]:
-            es.index(index = 'municipios', doc_type = key, body = {'nombre':value})
+            es.index(index = 'municipios', doc_type = key, body = {'nombre':value["nombre"], 'clave': value["clave"]})
 
     for key in PAISES.keys():
         value = PAISES[key]
