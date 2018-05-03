@@ -24,8 +24,8 @@ def get_correct_mun():
     if request.method == 'GET':
         mun = request.args.get('nombre')
         estado = request.args.get('estado')
-        mun_nombre = correct_mun(estado, mun)
-        return jsonify({"nombre": mun_nombre})
+        mun_nombre,clave = correct_mun(estado, mun)
+        return jsonify({"nombre": mun_nombre, "cve":clave})
 
 
 @app.route("/corner/", methods=['GET', 'POST'])

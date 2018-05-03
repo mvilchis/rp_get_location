@@ -146,9 +146,9 @@ def parse_mun(edo_cve, mun):
     item = mun.lower()
     edo_cve = str(int(edo_cve))
 
-    has_prefix = [value for value in MUNICIPIOS[edo_cve] if value.lower().startswith(item)]
-    is_correct = [value for value in MUNICIPIOS[edo_cve] if item == value.lower()
-                                                 or item == unidecode.unidecode(value.lower())]
+    has_prefix = [value for value in MUNICIPIOS[edo_cve] if value["nombre"].lower().startswith(item)]
+    is_correct = [value for value in MUNICIPIOS[edo_cve] if item == value["nombre"].lower()
+                                                 or item == unidecode.unidecode(value["nombre"].lower())]
     if  len(is_correct) == 1:
         estado_item = is_correct[0]
         return estado_item["nombre"], estado_item["clave"]
